@@ -26,13 +26,16 @@ final call.
 | GMP (Grey Market Premium) | `ipowatch.in` GMP table | Estimated listing price ≥ **10% above issue price** | Shown as both ₹ and % in the alert |
 | Growing profit | Best-effort scrape, primary target Chittorgarh's per-IPO page (financials table); fallback to alternate sources (e.g. Groww/Equitymaster IPO pages) if that fails | PAT grew in **each of the last 3 reported years** | Non-blocking: if the scrape fails or data is incomplete, the field is marked `Unknown` and the alert still fires (flagged "⚠️ verify profit trend manually") rather than being suppressed |
 
-**Known risk:** Chittorgarh (and InvestorGain) actively block plain automated
-fetches (confirmed 403 during design research) — implementation will need to
-try harder (proper browser-like headers, alternate endpoints, or a different
-source entirely) to get financials reliably. `ipowatch.in` did not exhibit
-this blocking for subscription/GMP data during testing. Given financials are
-explicitly non-blocking, `Unknown` is an acceptable steady-state outcome if
-scraping never becomes reliable — the user reviews those manually.
+**Update (confirmed during plan research):** the earlier 403s were specific
+to the design-research fetch tool's request signature, not a general block —
+both `chittorgarh.com` and `ipowatch.in` return normal HTML to a plain HTTP
+GET with a standard browser `User-Agent` header. Chittorgarh's per-IPO page
+has a clean "Company Financials (Restated)" table with a "Profit After Tax"
+row across the last 3 reported periods, keyed off company name via
+Chittorgarh's own IPO dashboard listing. Financials scraping is expected to
+work directly, not just as a best-effort fallback — `Unknown` remains the
+graceful degradation path (e.g. name-matching failure between sources) but
+should be the exception rather than the norm.
 
 ## Architecture
 
