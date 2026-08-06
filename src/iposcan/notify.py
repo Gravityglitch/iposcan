@@ -25,11 +25,12 @@ def format_alert(evaluation: IpoEvaluation) -> str:
     )
 
 
-def send_telegram_message(token: str, chat_id: str, text: str) -> None:
+def send_telegram_message(
+    token: str, chat_id: str, text: str, parse_mode: str | None = None
+) -> None:
     url = TELEGRAM_API_URL.format(token=token)
-    response = requests.post(
-        url,
-        data={"chat_id": chat_id, "text": text},
-        timeout=REQUEST_TIMEOUT_SECONDS,
-    )
+    data = {"chat_id": chat_id, "text": text}
+    if parse_mode:
+        data["parse_mode"] = parse_mode
+    response = requests.post(url, data=data, timeout=REQUEST_TIMEOUT_SECONDS)
     response.raise_for_status()

@@ -27,6 +27,8 @@ def test_parse_financials_growing_profit():
     result = parse_financials(html)
     assert result.available is True
     assert result.profit_after_tax == [84.68, 33.27, 8.95]
+    assert result.total_income == [1168.88, 743.53, 463.39]
+    assert result.period_ended == ["31 Mar 2026", "31 Mar 2025", "31 Mar 2024"]
 
 
 def test_parse_financials_declining_profit():
@@ -34,6 +36,8 @@ def test_parse_financials_declining_profit():
     result = parse_financials(html)
     assert result.available is True
     assert result.profit_after_tax == [5.00, 10.00, 20.00]
+    assert result.total_income is None
+    assert result.period_ended == ["31 Mar 2026", "31 Mar 2025", "31 Mar 2024"]
 
 
 def test_parse_financials_missing_section():

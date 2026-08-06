@@ -4,6 +4,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from iposcan import criteria, notify, state
 from iposcan.sources import financials, gmp, subscription
 
@@ -11,6 +13,8 @@ STATE_PATH = Path("state/alerted_ipos.json")
 
 
 def run() -> None:
+    load_dotenv()
+
     token = os.environ["TELEGRAM_BOT_TOKEN"]
     chat_id = os.environ["TELEGRAM_CHAT_ID"]
 

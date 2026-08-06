@@ -56,17 +56,20 @@ def parse_gmp_table(html: str) -> list[GmpRow]:
         cells = [c.get_text(strip=True) for c in tr.find_all(["td", "th"])]
         if len(cells) < 8:
             continue
-        rows.append(
-            GmpRow(
-                ipo_name=cells[0],
-                gmp_rupees=parse_number(cells[1]),
-                price_band=cells[3],
-                listing_gain_pct=_parse_listing_gain_pct(cells[4]),
-                date_range=cells[5],
-                ipo_type=cells[6],
-                status=cells[7],
+        try:
+            rows.append(
+                GmpRow(
+                    ipo_name=cells[0],
+                    gmp_rupees=parse_number(cells[1]),
+                    price_band=cells[3],
+                    listing_gain_pct=_parse_listing_gain_pct(cells[4]),
+                    date_range=cells[5],
+                    ipo_type=cells[6],
+                    status=cells[7],
+                )
             )
-        )
+        except ValueError:
+            continue
     return rows
 
 

@@ -48,15 +48,18 @@ def parse_subscription_table(html: str) -> list[SubscriptionRow]:
         cells = [c.get_text(strip=True) for c in tr.find_all(["td", "th"])]
         if len(cells) < 7:
             continue
-        rows.append(
-            SubscriptionRow(
-                ipo_name=cells[0],
-                ipo_type=cells[1],
-                closing_date=cells[2],
-                qib=parse_number(cells[3]),
-                nii=parse_number(cells[4]),
-                retail=parse_number(cells[5]),
-                total=parse_number(cells[6]),
+        try:
+            rows.append(
+                SubscriptionRow(
+                    ipo_name=cells[0],
+                    ipo_type=cells[1],
+                    closing_date=cells[2],
+                    qib=parse_number(cells[3]),
+                    nii=parse_number(cells[4]),
+                    retail=parse_number(cells[5]),
+                    total=parse_number(cells[6]),
+                )
             )
-        )
+        except ValueError:
+            continue
     return rows

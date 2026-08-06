@@ -11,6 +11,7 @@ from dataclasses import dataclass
 
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 from iposcan.html_utils import find_table_by_header_keywords, parse_number
 
@@ -30,6 +31,8 @@ _NON_ALNUM_RE = re.compile(r"[^a-z0-9]+")
 class FinancialsResult:
     available: bool
     profit_after_tax: list[float] | None  # newest period first
+    total_income: list[float] | None = None  # newest period first
+    period_ended: list[str] | None = None  # newest period first, e.g. "31 Mar 2026"
 
 
 def fetch_dashboard_html() -> str:
@@ -67,6 +70,14 @@ def parse_dashboard_links(html: str) -> dict[str, str]:
     return links
 
 
+def _extract_row(table: Tag, label: str) -> list[str] | None:
+    for tr in table.find_all("tr"):
+        cells = [c.get_text(strip=True) for c in tr.find_all(["td", "th"])]
+        if cells and cells[0].strip().lower() == label:
+            return cells[1:]
+    return None
+
+
 def parse_financials(html: str) -> FinancialsResult:
     soup = BeautifulSoup(html, "html.parser")
     heading = next(
@@ -80,22 +91,31 @@ def parse_financials(html: str) -> FinancialsResult:
     if table is None:
         return FinancialsResult(available=False, profit_after_tax=None)
 
-    pat_cells: list[str] | None = None
-    for tr in table.find_all("tr"):
-        cells = [c.get_text(strip=True) for c in tr.find_all(["td", "th"])]
-        if cells and cells[0].strip().lower() == "profit after tax":
-            pat_cells = cells[1:]
-            break
-
+    pat_cells = _extract_row(table, "profit after tax")
     if not pat_cells:
         return FinancialsResult(available=False, profit_after_tax=None)
 
     try:
-        values = [parse_number(v) for v in pat_cells]
+        profit_after_tax = [parse_number(v) for v in pat_cells]
     except ValueError:
         return FinancialsResult(available=False, profit_after_tax=None)
 
-    return FinancialsResult(available=True, profit_after_tax=values)
+    total_income: list[float] | None = None
+    income_cells = _extract_row(table, "total income")
+    if income_cells:
+        try:
+            total_income = [parse_number(v) for v in income_cells]
+        except ValueError:
+            total_income = None
+
+    period_ended = _extract_row(table, "period ended")
+
+    return FinancialsResult(
+        available=True,
+        profit_after_tax=profit_after_tax,
+        total_income=total_income,
+        period_ended=period_ended,
+    )
 
 
 def normalize_company_name(name: str) -> str:

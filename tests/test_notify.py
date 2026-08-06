@@ -48,3 +48,11 @@ def test_send_telegram_message_posts_to_correct_url():
         called_data = mock_post.call_args.kwargs["data"]
         assert called_url == TELEGRAM_API_URL.format(token="TOKEN123")
         assert called_data == {"chat_id": "CHAT456", "text": "hello"}
+
+
+def test_send_telegram_message_includes_parse_mode_when_given():
+    with patch("iposcan.notify.requests.post") as mock_post:
+        mock_post.return_value.raise_for_status.return_value = None
+        send_telegram_message("TOKEN123", "CHAT456", "hello", parse_mode="Markdown")
+        called_data = mock_post.call_args.kwargs["data"]
+        assert called_data == {"chat_id": "CHAT456", "text": "hello", "parse_mode": "Markdown"}
