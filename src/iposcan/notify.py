@@ -8,21 +8,10 @@ from iposcan.criteria import IpoEvaluation
 TELEGRAM_API_URL = "https://api.telegram.org/bot{token}/sendMessage"
 REQUEST_TIMEOUT_SECONDS = 30
 
-_PROFIT_LABELS: dict[bool | None, str] = {
-    True: "📈 Growing (3yr)",
-    False: "📉 Not growing",
-    None: "⚠️ Unknown - verify manually",
-}
-
 
 def format_alert(evaluation: IpoEvaluation) -> str:
-    return (
-        f"🎯 IPO Alert: {evaluation.ipo_name}\n\n"
-        f"Subscription — QIB {evaluation.qib}x | NII {evaluation.nii}x | "
-        f"Retail {evaluation.retail}x | Total {evaluation.total}x\n"
-        f"GMP: ₹{evaluation.gmp_rupees} (~{evaluation.listing_gain_pct}% listing gain)\n"
-        f"Profit trend: {_PROFIT_LABELS[evaluation.profit_growing]}"
-    )
+    verdict = "Yes" if evaluation.passes else "No"
+    return f"{evaluation.ipo_name}: {verdict}, invest in this IPO"
 
 
 def send_telegram_message(
