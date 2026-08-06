@@ -2,7 +2,7 @@ name: Daily IPO Scan
 
 on:
   schedule:
-    - cron: "30 12 * * *"
+    - cron: "0 10 * * *" # 3:30 PM IST
   workflow_dispatch: {}
 
 permissions:
