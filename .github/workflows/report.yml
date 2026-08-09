@@ -2,7 +2,7 @@ name: Active Mainboard IPO Report
 
 on:
   schedule:
-    - cron: "07 10 * * *"
+    - cron: "00 8 * * *"
   workflow_dispatch:
 
 jobs:
